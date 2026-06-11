@@ -31,3 +31,29 @@ export interface SyncLog {
   completed_at: string | null;
   records_processed: number;
 }
+
+export interface Alert {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  level: 'critical' | 'warning' | 'info';
+  category: string;
+  status: 'active' | 'resolved' | 'dismissed';
+  metadata: any;
+  resolved_at: string | null;
+  created_at: string;
+}
+
+export interface Lead {
+  id: string;
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  status: string;
+  source: string | null;
+  last_activity_at: string;
+  created_at: string;
+}

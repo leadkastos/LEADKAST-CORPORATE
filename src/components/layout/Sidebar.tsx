@@ -22,7 +22,7 @@ const navigation = [
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Integrations', href: '/integrations', icon: Target },
   { name: 'Growth', href: '/growth', icon: TrendingUp },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Profile', href: '/settings/profile', icon: Settings },
 ];
 
 import { useAuth } from '@/hooks/useAuth';

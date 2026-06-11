@@ -57,3 +57,20 @@ export interface Lead {
   last_activity_at: string;
   created_at: string;
 }
+
+export interface EngagementLog {
+  id: string;
+  user_id: string;
+  event_type: 'dashboard_login' | 'morning_brief_open' | 'report_download' | 'daily_wrap_open';
+  metadata: any;
+  created_at: string;
+}
+
+export interface ExecutiveAnalyticsKPIs {
+  user_id: string;
+  connectedness_score: number;
+  alert_action_rate: number;
+  dashboard_logins: number;
+  morning_brief_opens: number;
+  total_engagement_score: number;
+}

@@ -1,5 +1,9 @@
+'use client';
+
+import { useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { KpiCard } from '@/components/dashboard/KpiCard';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { cn } from '@/lib/utils';
 import { 
   DollarSign, Users, TrendingUp, Zap,
@@ -52,6 +56,14 @@ const alertStyles = {
 };
 
 export default function Home() {
+  const { kpis, logEngagement } = useAnalytics();
+
+  useEffect(() => {
+    logEngagement('dashboard_login');
+  }, []);
+
+  const healthScore = kpis ? Math.round((kpis.connectednessScore * 10 + kpis.alertActionRate) / 2) : 94;
+
   return (
     <DashboardLayout>
       {/* Header */}
@@ -71,8 +83,9 @@ export default function Home() {
         <KpiCard title="Total Revenue" value="$128,430" change="+12.5%" trend="up" icon={DollarSign} iconColor="text-emerald-400" subtitle="$92k MRR / 24% YoY" sparkline={[30,42,38,55,48,62,58,70,65,78,72,85]} />
         <KpiCard title="Active Customers" value="1,240" change="+3.2%" trend="up" icon={Users} iconColor="text-blue-400" subtitle="12 new / 3 churned" sparkline={[50,52,55,58,60,62,65,68,72,75,78,82]} />
         <KpiCard title="Conversion Rate" value="4.8%" change="-0.4%" trend="down" icon={TrendingUp} iconColor="text-indigo-400" subtitle="vs 5.2% last month" sparkline={[72,75,70,68,72,65,62,60,58,55,52,48]} />
-        <KpiCard title="Business Health" value="94/100" change="Stable" trend="neutral" icon={Zap} iconColor="text-amber-400" subtitle="Up 2pts from last month" sparkline={[80,82,85,82,86,88,90,89,91,92,93,94]} />
+        <KpiCard title="Business Health" value={`${healthScore}/100`} change={kpis ? "Dynamic" : "Stable"} trend="neutral" icon={Zap} iconColor="text-amber-400" subtitle={kpis ? `${kpis.connectednessScore} integrations active` : "Up 2pts from last month"} sparkline={[80,82,85,82,86,88,90,89,91,92,93,94]} />
       </div>
+
 
       {/* Row 1: What Happened + Why */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

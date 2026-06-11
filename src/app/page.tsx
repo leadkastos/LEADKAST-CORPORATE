@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { cn } from '@/lib/utils';
@@ -25,10 +26,13 @@ export default function Home() {
           <button className="bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
             Download Report
           </button>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center">
+          <Link 
+            href="/integrations"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Integration
-          </button>
+          </Link>
         </div>
       </div>
 

@@ -26,7 +26,7 @@ export const seedAlertsData = async (userId: string) => {
   await supabase.from('reviews').insert(reviews);
 
   // 2. Seed some appointments (including no-shows)
-  const { data: leads } = await supabase.from('leads').select('id').eq('user_id', userId).limit(5);
+  const { data: leads } = await supabase.from('leads').select('id').eq('user_id', userId).limit(10);
   
   if (leads && leads.length > 0) {
     const appointments = [
@@ -44,9 +44,24 @@ export const seedAlertsData = async (userId: string) => {
       }
     ];
     await supabase.from('appointments').insert(appointments);
+
+    // 3. Seed some reactivation opportunities
+    // Set some leads to 'lost' or 'dormant' with old last_activity_at
+    const fortyDaysAgo = new Date();
+    fortyDaysAgo.setDate(fortyDaysAgo.getDate() - 40);
+
+    const reactivationLeads = leads.slice(2, 5).map(lead => ({
+      id: lead.id,
+      status: Math.random() > 0.5 ? 'lost' : 'dormant',
+      last_activity_at: fortyDaysAgo.toISOString()
+    }));
+
+    for (const lead of reactivationLeads) {
+      await supabase.from('leads').update(lead).eq('id', lead.id);
+    }
   }
 
-  // 3. Ensure we have ad_metrics with a drop/increase to trigger alerts
+  // 4. Ensure we have ad_metrics with a drop/increase to trigger alerts
   const today = new Date().toISOString().split('T')[0];
   const yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);

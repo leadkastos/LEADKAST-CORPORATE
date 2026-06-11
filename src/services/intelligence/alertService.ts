@@ -86,8 +86,8 @@ export const refreshAlerts = async (userId: string) => {
     if (todayMetric.spend < yesterdayMetric.spend * 0.5) {
       alerts.push({
         user_id: userId,
-        title: 'Significant Spend Drop',
-        description: `Your ad spend has dropped by more than 50% compared to yesterday.`,
+        title: 'Significant Revenue/Spend Drop',
+        description: `Your ad spend/revenue has dropped by more than 50% compared to yesterday.`,
         level: 'critical',
         category: 'revenue_drop',
         status: 'active',
@@ -133,6 +133,29 @@ export const refreshAlerts = async (userId: string) => {
       category: 'no_show',
       status: 'active',
       metadata: { count: noShows.length }
+    });
+  }
+
+  // 6. Reactivation Opportunities
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  const { data: reactivationLeads } = await supabase
+    .from('leads')
+    .select('*')
+    .eq('user_id', userId)
+    .in('status', ['lost', 'dormant'])
+    .lt('last_activity_at', thirtyDaysAgo.toISOString());
+
+  if (reactivationLeads && reactivationLeads.length > 0) {
+    alerts.push({
+      user_id: userId,
+      title: 'Reactivation Opportunities',
+      description: `You have ${reactivationLeads.length} past leads who could be re-engaged for new business.`,
+      level: 'info',
+      category: 'reactivation',
+      status: 'active',
+      metadata: { count: reactivationLeads.length }
     });
   }
 

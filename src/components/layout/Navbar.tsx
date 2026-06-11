@@ -3,7 +3,11 @@
 import React from 'react';
 import { Bell, Search, User, Menu } from 'lucide-react';
 
+import { useAuth } from '@/hooks/useAuth';
+
 export function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
+  const { profile } = useAuth();
+
   return (
     <header className="h-16 bg-slate-950/50 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 flex items-center justify-between px-4 lg:px-8">
       <div className="flex items-center flex-1">
@@ -30,8 +34,13 @@ export function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Bell className="h-5 w-5" />
           <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border border-slate-950"></span>
         </button>
-        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center cursor-pointer">
-          <User className="h-5 w-5 text-white" />
+        <div className="flex items-center space-x-3 bg-slate-900/50 border border-slate-800 py-1 pl-1 pr-3 rounded-full hover:border-slate-700 transition-colors cursor-pointer">
+          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <User className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-xs font-medium text-slate-300 hidden sm:inline-block">
+            {profile?.full_name?.split(' ')[0] || 'Executive'}
+          </span>
         </div>
       </div>
     </header>

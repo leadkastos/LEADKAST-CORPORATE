@@ -17,7 +17,14 @@ import {
   Lightbulb,
   Layers,
   ChevronDown,
-  Building2
+  Building2,
+  Archive,
+  AlertTriangle,
+  ClipboardList,
+  Mail,
+  ShieldCheck,
+  Zap,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -38,29 +45,40 @@ const navigation: NavGroup[] = [
     title: 'Main',
     items: [
       { name: 'Executive Overview', href: '/', icon: LayoutDashboard },
+      { name: 'Alert Center', href: '/alerts', icon: AlertTriangle },
+      { name: 'Action Center', href: '/action-center', icon: ClipboardList },
     ],
   },
   {
     title: 'Intelligence Modules',
     items: [
-      { name: 'Marketing Intelligence', href: '/marketing', icon: BarChart3 },
-      { name: 'Revenue Operations', href: '/revenue', icon: PieChart },
-      { name: 'Customer Insights', href: '/customers', icon: Users },
+      { name: 'Marketing', href: '/marketing', icon: BarChart3 },
+      { name: 'Revenue', href: '/revenue', icon: DollarSign },
+      { name: 'Sales Pipeline', href: '/pipeline', icon: Layers },
+      { name: 'Sales Performance', href: '/sales', icon: Target },
+      { name: 'Revenue Recovery', href: '/revenue-recovery', icon: Zap },
       { name: 'Growth Analytics', href: '/growth', icon: TrendingUp },
     ],
   },
   {
-    title: 'Coming Soon',
+    title: 'Executive Briefs',
     items: [
-      { name: 'Sales Intelligence', href: '#', icon: Target, badge: 'soon' },
-      { name: 'Operations Hub', href: '#', icon: Layers, badge: 'soon' },
-      { name: 'AI Insights', href: '#', icon: Lightbulb, badge: 'soon' },
+      { name: 'Morning Brief', href: '/briefs/morning', icon: Mail },
+      { name: 'Daily Wrap', href: '/briefs/daily-wrap', icon: Mail },
+    ],
+  },
+  {
+    title: 'Reporting',
+    items: [
+      { name: 'Intelligence Reports', href: '/reports', icon: PieChart },
+      { name: 'Archive', href: '/archive', icon: Archive },
     ],
   },
   {
     title: 'Administration',
     items: [
       { name: 'Integrations', href: '/integrations', icon: Bell },
+      { name: 'User Permissions', href: '/admin/permissions', icon: ShieldCheck },
       { name: 'Settings', href: '/settings', icon: Settings },
     ],
   },
@@ -71,7 +89,8 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     'Main': true,
     'Intelligence Modules': true,
-    'Coming Soon': false,
+    'Executive Briefs': true,
+    'Reporting': true,
     'Administration': true,
   });
 

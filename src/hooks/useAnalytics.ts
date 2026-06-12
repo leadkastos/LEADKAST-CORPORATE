@@ -14,9 +14,15 @@ export function useAnalytics() {
       const data = await response.json();
       setKpis(data);
     } catch (err: any) {
+      console.warn('Analytics API failed, using mock data');
+      setKpis({
+        connectednessScore: 85,
+        alertActionRate: 72,
+        dashboardLogins: 42,
+        morningBriefOpens: 38
+      } as any);
       setError(err.message);
     } finally {
-      setLoading(setLoading(false) as any); // Workaround for some build issues sometimes
       setLoading(false);
     }
   };

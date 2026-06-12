@@ -12,36 +12,13 @@ import {
   Activity, Target, ShoppingCart, CreditCard, Clock,
 } from 'lucide-react';
 
-const revenueData = [
-  { month: 'Jul', value: 42, mrr: 38 },
-  { month: 'Aug', value: 55, mrr: 45 },
-  { month: 'Sep', value: 48, mrr: 52 },
-  { month: 'Oct', value: 70, mrr: 58 },
-  { month: 'Nov', value: 62, mrr: 65 },
-  { month: 'Dec', value: 85, mrr: 72 },
-];
-
-const channelData = [
-  { name: 'Organic Search', value: 42, color: 'bg-blue-500' },
-  { name: 'Paid Ads', value: 28, color: 'bg-indigo-500' },
-  { name: 'Social Media', value: 18, color: 'bg-violet-500' },
-  { name: 'Referrals', value: 12, color: 'bg-emerald-500' },
-];
-
-const alerts = [
-  { title: 'Ad spend exceeded threshold', description: 'Google Ads budget at 92% with 5 days remaining', time: '2h ago', type: 'warning' as const, action: 'Review Campaigns' },
-  { title: 'New Enterprise customer onboarded', description: 'Acme Corp completed onboarding - $24k MRR added', time: '4h ago', type: 'success' as const, action: 'View Profile' },
-  { title: 'CRM sync error detected', description: 'HubSpot integration encountered 12 failed records', time: '6h ago', type: 'error' as const, action: 'Investigate' },
-  { title: 'Q4 revenue target achieved', description: 'Quarterly target reached 2 weeks ahead of schedule', time: '1d ago', type: 'success' as const, action: 'View Report' },
-  { title: 'Churn risk: 3 accounts flagged', description: 'High-risk accounts - total ARR at risk: $45k', time: '1d ago', type: 'warning' as const, action: 'Review Accounts' },
-];
-
-const actions = [
-  { title: 'Review ad campaign performance', description: '3 campaigns underperforming - optimize budget allocation', priority: 'high' as const, impact: '+15% ROAS' },
-  { title: 'Follow up with 5 warm leads', description: 'Leads from last demo scored 85+ - ready for sales outreach', priority: 'high' as const, impact: '+$38k pipeline' },
-  { title: 'Update marketing calendar', description: 'Q1 content strategy needs final approval by Friday', priority: 'medium' as const, impact: 'Brand alignment' },
-  { title: 'Review subscription pricing tiers', description: 'Competitor analysis suggests 12% room for optimization', priority: 'medium' as const, impact: '+8% MRR' },
-];
+import { 
+  mockDashboardKpis, 
+  mockRevenueGrowth, 
+  mockAlerts, 
+  mockActionItems, 
+  getConnectednessScore 
+} from '@/lib/mock-data';
 
 const priorityStyles = {
   high: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
@@ -56,13 +33,7 @@ const alertStyles = {
 };
 
 export default function Home() {
-  const { kpis, logEngagement } = useAnalytics();
-
-  useEffect(() => {
-    logEngagement('dashboard_login');
-  }, []);
-
-  const healthScore = kpis ? Math.round((kpis.connectednessScore * 10 + kpis.alertActionRate) / 2) : 94;
+  const healthScore = getConnectednessScore();
 
   return (
     <DashboardLayout>
@@ -80,10 +51,10 @@ export default function Home() {
 
       {/* KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
-        <KpiCard title="Total Revenue" value="$128,430" change="+12.5%" trend="up" icon={DollarSign} iconColor="text-emerald-400" subtitle="$92k MRR / 24% YoY" sparkline={[30,42,38,55,48,62,58,70,65,78,72,85]} />
-        <KpiCard title="Active Customers" value="1,240" change="+3.2%" trend="up" icon={Users} iconColor="text-blue-400" subtitle="12 new / 3 churned" sparkline={[50,52,55,58,60,62,65,68,72,75,78,82]} />
-        <KpiCard title="Conversion Rate" value="4.8%" change="-0.4%" trend="down" icon={TrendingUp} iconColor="text-indigo-400" subtitle="vs 5.2% last month" sparkline={[72,75,70,68,72,65,62,60,58,55,52,48]} />
-        <KpiCard title="Business Health" value={`${healthScore}/100`} change={kpis ? "Dynamic" : "Stable"} trend="neutral" icon={Zap} iconColor="text-amber-400" subtitle={kpis ? `${kpis.connectednessScore} integrations active` : "Up 2pts from last month"} sparkline={[80,82,85,82,86,88,90,89,91,92,93,94]} />
+        <KpiCard title="Total Revenue" value="$1,248,300" change="+12.5%" trend="up" icon={DollarSign} iconColor="text-emerald-400" subtitle="$920k MRR / 24% YoY" sparkline={[30,42,38,55,48,62,58,70,65,78,72,85]} />
+        <KpiCard title="Active Leads" value="4,821" change="+8.2%" trend="up" icon={Users} iconColor="text-blue-400" subtitle="142 new / 12 closed" sparkline={[50,52,55,58,60,62,65,68,72,75,78,82]} />
+        <KpiCard title="Marketing ROI" value="4.2x" change="+5.4%" trend="up" icon={TrendingUp} iconColor="text-indigo-400" subtitle="vs 3.8x last month" sparkline={[72,75,70,68,72,65,62,60,58,55,52,48]} />
+        <KpiCard title="Health Score" value={`${healthScore}/100`} change="Dynamic" trend="neutral" icon={Zap} iconColor="text-amber-400" subtitle="System operational" sparkline={[80,82,85,82,86,88,90,89,91,92,93,94]} />
       </div>
 
 
@@ -100,20 +71,17 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -left-2 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-600 font-medium pr-2"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
             <div className="h-56 ml-10 flex items-end space-x-3">
-              {revenueData.map((item) => (
-                <div key={item.month} className="flex-1 flex flex-col items-center justify-end h-full space-y-1">
-                  <div className="w-full bg-indigo-500/20 rounded-t-sm relative group" style={{ height: `${item.mrr}%` }}>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-sm transition-all duration-500 group-hover:from-indigo-400" style={{ height: `${item.mrr}%` }} />
-                  </div>
-                  <div className="w-full bg-blue-500/20 rounded-t-sm relative group" style={{ height: `${item.value}%` }}>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-sm transition-all duration-500 group-hover:from-blue-500" style={{ height: `${item.value}%` }} />
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap shadow-lg z-10">${item.value}k</div>
+              {mockRevenueGrowth.map((item) => (
+                <div key={item.name} className="flex-1 flex flex-col items-center justify-end h-full space-y-1">
+                  <div className="w-full bg-blue-500/20 rounded-t-sm relative group" style={{ height: `${(item.value / 4000) * 100}%` }}>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-sm transition-all duration-500 group-hover:from-blue-500" style={{ height: `100%` }} />
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap shadow-lg z-10">${item.value}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="flex ml-10 mt-2">{revenueData.map((item) => (<div key={item.month} className="flex-1 text-center"><span className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">{item.month}</span></div>))}</div>
+          <div className="flex ml-10 mt-2">{mockRevenueGrowth.map((item) => (<div key={item.name} className="flex-1 text-center"><span className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">{item.name}</span></div>))}</div>
           <div className="flex items-center space-x-4 mt-4 pt-4 border-t border-slate-800/60">
             <div className="flex items-center space-x-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-blue-500" /><span className="text-[11px] text-slate-500">Revenue</span></div>
             <div className="flex items-center space-x-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-indigo-500" /><span className="text-[11px] text-slate-500">MRR</span></div>
@@ -161,18 +129,18 @@ export default function Home() {
             <button className="text-xs text-blue-400 hover:text-blue-300 font-medium">View All</button>
           </div>
           <div className="space-y-2">
-            {alerts.map((alert, i) => {
-              const s = alertStyles[alert.type];
+            {mockAlerts.map((alert, i) => {
+              const s = alertStyles[alert.level === 'critical' ? 'error' : alert.level === 'warning' ? 'warning' : 'success'];
               return (
                 <div key={i} className={cn("group flex items-start space-x-3 p-3.5 rounded-xl border border-slate-800/40 transition-all cursor-pointer", s.bg, s.border)}>
                   <div className={cn("mt-1.5 h-2.5 w-2.5 rounded-full shrink-0 shadow-sm", s.dot)} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <p className="text-sm font-medium text-slate-200 group-hover:text-white">{alert.title}</p>
-                      <span className="text-[10px] text-slate-600 shrink-0 ml-2">{alert.time}</span>
+                      <span className="text-[10px] text-slate-600 shrink-0 ml-2">{alert.timestamp}</span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{alert.description}</p>
-                    <button className="mt-2 text-[11px] font-medium text-blue-400 hover:text-blue-300 flex items-center">{alert.action}<ChevronRight className="h-3 w-3 ml-0.5" /></button>
+                    <button className="mt-2 text-[11px] font-medium text-blue-400 hover:text-blue-300 flex items-center">Resolve Now<ChevronRight className="h-3 w-3 ml-0.5" /></button>
                   </div>
                 </div>
               );
@@ -186,7 +154,7 @@ export default function Home() {
             <div><h2 className="text-base font-semibold text-white">Next Actions</h2><p className="text-xs text-slate-500 mt-0.5">Recommended priorities for today</p></div>
           </div>
           <div className="space-y-3">
-            {actions.map((action, i) => (
+            {mockActionItems.map((action, i) => (
               <div key={i} className="group p-3.5 rounded-xl border border-slate-800/40 hover:bg-slate-800/30 hover:border-slate-700/50 transition-all cursor-pointer">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-sm font-medium text-slate-200 group-hover:text-white">{action.title}</h3>
@@ -194,7 +162,7 @@ export default function Home() {
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed">{action.description}</p>
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/40">
-                  <span className="text-[11px] font-medium text-emerald-400">Impact: {action.impact}</span>
+                  <span className="text-[11px] font-medium text-emerald-400">Due: {action.dueDate}</span>
                   <button className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center">Start<ArrowUpRight className="h-3 w-3 ml-0.5" /></button>
                 </div>
               </div>

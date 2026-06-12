@@ -251,7 +251,17 @@ export const mockSalesMetrics = {
     { name: 'Sarah Miller', deals: 19, value: 380000, rate: 24 },
     { name: 'Michael Chen', deals: 15, value: 300000, rate: 19 },
   ],
+  trends: [
+    { name: 'Mon', calls: 320, appointments: 42, won: 8 },
+    { name: 'Tue', calls: 380, appointments: 56, won: 12 },
+    { name: 'Wed', calls: 420, appointments: 68, won: 15 },
+    { name: 'Thu', calls: 390, appointments: 48, won: 10 },
+    { name: 'Fri', calls: 450, appointments: 72, won: 18 },
+    { name: 'Sat', calls: 280, appointments: 35, won: 9 },
+    { name: 'Sun', calls: 210, appointments: 28, won: 13 },
+  ]
 };
+
 
 export const mockRevenueRecovery = {
   summary: [
@@ -265,7 +275,14 @@ export const mockRevenueRecovery = {
     { type: 'No-Show Followup', lead: 'Aria Green', value: 4500, age: '2 days' },
     { type: 'Contract Pending', lead: 'Nexus Group', value: 25000, age: '7 days' },
   ],
+  trends: [
+    { name: 'Week 1', recovered: 12000, atRisk: 160000 },
+    { name: 'Week 2', recovered: 18000, atRisk: 155000 },
+    { name: 'Week 3', recovered: 25000, atRisk: 148000 },
+    { name: 'Week 4', recovered: 22400, atRisk: 145000 },
+  ]
 };
+
 
 export const mockPermissions = [
   { role: 'Administrator', users: 2, access: 'Full System' },

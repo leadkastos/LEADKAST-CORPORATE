@@ -281,6 +281,13 @@ export const mockReports = [
   { id: '4', name: 'Customer Sentiment Analysis', type: 'Product', date: 'May 1, 2026', status: 'final' },
 ];
 
+export const channelData = [
+  { name: 'Meta Ads', value: 42, color: 'bg-blue-500' },
+  { name: 'Google Ads', value: 28, color: 'bg-indigo-500' },
+  { name: 'Organic', value: 18, color: 'bg-purple-500' },
+  { name: 'Referral', value: 12, color: 'bg-emerald-500' },
+];
+
 export const getConnectednessScore = () => {
   const connectedCount = mockIntegrations.filter(i => i.status === 'connected').length;
   const totalPotential = mockIntegrations.filter(i => i.status !== 'coming_soon').length;

@@ -17,6 +17,7 @@ import {
   mockRevenueGrowth, 
   mockAlerts, 
   mockActionItems, 
+  channelData,
   getConnectednessScore 
 } from '@/lib/mock-data';
 

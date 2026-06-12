@@ -16,10 +16,19 @@ export const analyticsService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
+    // Get organization_id from profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.organization_id) return null;
+
     const { data, error } = await supabase
       .from('executive_analytics_kpis')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('organization_id', profile.organization_id)
       .single();
 
     if (error) {
@@ -50,10 +59,18 @@ export const analyticsService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Get organization_id from profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single();
+
     const { error } = await supabase
       .from('engagement_logs')
       .insert({
         user_id: user.id,
+        organization_id: profile?.organization_id,
         event_type: eventType,
         metadata
       });

@@ -21,6 +21,7 @@ import { BusinessConnectednessScore } from '@/components/dashboard/BusinessConne
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState(mockIntegrations);
   const [connectingId, setConnectingId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const handleConnect = (id: string) => {
     setConnectingId(id);
@@ -33,6 +34,28 @@ export default function IntegrationsPage() {
     }, 2000);
   };
 
+  const handleSyncAll = async () => {
+    try {
+      setIsSyncing(true);
+      const response = await fetch('/api/integrations/sync', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      console.log('Sync results:', data);
+      
+      if (data.success) {
+        setIntegrations(prev => prev.map(int => ({
+          ...int,
+          lastSync: 'Just now'
+        })));
+      }
+    } catch (err) {
+      console.error('Sync failed:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -42,6 +65,14 @@ export default function IntegrationsPage() {
             <p className="text-slate-400">Connect your business ecosystem to LeadKast OS.</p>
           </div>
           <div className="flex space-x-3">
+             <button
+              onClick={handleSyncAll}
+              disabled={isSyncing}
+              className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync All Now'}</span>
+            </button>
              <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <input 

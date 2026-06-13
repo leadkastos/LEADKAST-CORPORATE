@@ -1,3 +1,29 @@
+export interface Profile {
+  id: string;
+  updated_at: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  role: 'super_admin' | 'business_owner' | 'manager';
+  organization_id: string | null;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationMember {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  role: 'owner' | 'admin' | 'member';
+  created_at: string;
+}
+
 export interface Integration {
   id: string;
   name: string;
@@ -9,8 +35,9 @@ export interface Integration {
   created_at: string;
 }
 
-export interface UserIntegration {
+export interface OrganizationIntegration {
   id: string;
+  organization_id: string;
   user_id: string;
   integration_id: string;
   status: 'active' | 'inactive' | 'error' | 'disconnected';
@@ -34,6 +61,7 @@ export interface SyncLog {
 
 export interface Alert {
   id: string;
+  organization_id: string;
   user_id: string;
   title: string;
   description: string | null;
@@ -47,6 +75,7 @@ export interface Alert {
 
 export interface Lead {
   id: string;
+  organization_id: string;
   user_id: string;
   first_name: string | null;
   last_name: string | null;
@@ -56,4 +85,22 @@ export interface Lead {
   source: string | null;
   last_activity_at: string;
   created_at: string;
+}
+
+export interface EngagementLog {
+  id: string;
+  user_id: string;
+  event_type: 'dashboard_login' | 'morning_brief_open' | 'report_download' | 'daily_wrap_open';
+  metadata: any;
+  created_at: string;
+}
+
+export interface ExecutiveAnalyticsKPIs {
+  organization_id: string;
+  user_id: string;
+  connectedness_score: number;
+  alert_action_rate: number;
+  dashboard_logins: number;
+  morning_brief_opens: number;
+  total_engagement_score: number;
 }

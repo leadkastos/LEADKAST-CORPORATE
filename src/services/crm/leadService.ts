@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase';
 
-export const generateMockLeads = async (userId: string, count: number = 20) => {
+export const generateMockLeads = async (orgId: string, userId: string, count: number = 20) => {
   const supabase = createClient();
   const leads = [];
   const sources = ['Meta Ads', 'Google Ads', 'Website', 'Referral'];
@@ -16,6 +16,7 @@ export const generateMockLeads = async (userId: string, count: number = 20) => {
     activityDate.setDate(activityDate.getDate() - daysAgo);
 
     leads.push({
+      organization_id: orgId,
       user_id: userId,
       first_name: `Lead${i}`,
       last_name: `Test${i}`,

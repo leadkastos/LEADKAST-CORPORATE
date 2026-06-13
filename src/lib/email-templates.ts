@@ -159,6 +159,17 @@ export function renderMorningBriefHtml(data: MorningBriefData): string {
         <div style="font-size:14px;font-weight:600;color:#f59e0b;">${data.focusAction.title}</div>
         <div style="font-size:13px;color:#94a3b8;margin-top:4px;">${data.focusAction.description}</div>
       </td>
+    </tr>
+    <tr>
+      <td style="padding-top:24px;padding-bottom:12px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center">
+              <a href="https://app.leadkastos.com/api/intelligence/analytics/track-open?type=morning_brief_open&redirect=/" style="display:inline-block;padding:12px 24px;background-color:#3b82f6;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">View Full Dashboard</a>
+            </td>
+          </tr>
+        </table>
+      </td>
     </tr>`;
 
   return baseWrapper(content);
@@ -291,6 +302,17 @@ export function renderDailyWrapHtml(data: DailyWrapData): string {
     <tr>
       <td style="padding:24px 0 8px 0;">
         <div style="font-size:14px;color:#94a3b8;font-style:italic;">${data.signOff}</div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top:24px;padding-bottom:12px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center">
+              <a href="https://app.leadkastos.com/api/intelligence/analytics/track-open?type=daily_wrap_open&redirect=/" style="display:inline-block;padding:12px 24px;background-color:#3b82f6;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">View Full Dashboard</a>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>`;
 

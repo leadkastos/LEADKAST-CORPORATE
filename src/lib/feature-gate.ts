@@ -1,6 +1,7 @@
 /**
  * Feature gating based on subscription tier.
  * Used both server-side (API routes) and client-side (components/hooks).
+ * Updated for multi-tenant organization-based access.
  */
 
 import type { SubscriptionTier } from './plans';
@@ -84,4 +85,34 @@ export function hasPrioritySupport(tier: SubscriptionTier): boolean {
  */
 export function hasApiAccess(tier: SubscriptionTier): boolean {
   return PLANS[tier]?.apiAccess ?? false;
+}
+
+/**
+ * Fetch the subscription tier for the current user's organization.
+ * Calls the GET /api/billing/subscription endpoint.
+ * Falls back to 'free' if unavailable.
+ */
+export async function fetchUserTier(): Promise<SubscriptionTier> {
+  try {
+    const res = await fetch('/api/billing/subscription');
+    if (!res.ok) return 'free';
+    const data = await res.json();
+    return data.tier || 'free';
+  } catch {
+    return 'free';
+  }
+}
+
+/**
+ * Fetch the organization ID for the current user.
+ */
+export async function fetchOrganizationId(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/billing/subscription');
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.organizationId || null;
+  } catch {
+    return null;
+  }
 }

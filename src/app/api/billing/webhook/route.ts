@@ -11,10 +11,10 @@ export const dynamic = 'force-dynamic';
  * POST /api/billing/webhook
  *
  * Receives Stripe webhook events for subscription lifecycle management.
- * Updates the local database when subscriptions change.
+ * Updated for multi-tenant organization-based schema.
  *
  * Events handled:
- *   - checkout.session.completed — Creates/updates subscription record
+ *   - checkout.session.completed — Creates/updates subscription record (org-aware)
  *   - customer.subscription.updated — Syncs status changes, upgrades, downgrades
  *   - customer.subscription.deleted — Marks subscription as canceled
  *   - invoice.payment_succeeded — Updates current period dates
@@ -56,8 +56,17 @@ export async function POST(request: Request) {
       }
     );
 
+    // Helper: look up organization_id for a user
+    const getOrganizationId = async (userId: string): Promise<string | null> => {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', userId)
+        .maybeSingle();
+      return profile?.organization_id || null;
+    };
+
     // Helper to extract subscription fields from Stripe objects
-    // (excludes 'status' which is handled explicitly per event type)
     const extractSubFields = (obj: any) => ({
       current_period_start: obj.current_period_start
         ? new Date((obj.current_period_start as number) * 1000).toISOString()
@@ -84,6 +93,9 @@ export async function POST(request: Request) {
           break;
         }
 
+        // Look up organization_id for the user (multi-tenant support)
+        const orgId = await getOrganizationId(userId);
+
         // Get subscription details from Stripe
         const subscription = await stripe!.subscriptions.retrieve(subscriptionId);
         const rawSub = subscription as any;
@@ -92,22 +104,31 @@ export async function POST(request: Request) {
         );
         const fields = extractSubFields(rawSub);
 
-        // Upsert the subscription record
+        // Build subscription record with organization_id if available
+        const subRecord: any = {
+          user_id: userId,
+          tier: resolvedTier,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscriptionId,
+          status: subscription.status,
+          ...fields,
+        };
+        if (orgId) {
+          subRecord.organization_id = orgId;
+        }
+
+        // Upsert using stripe_subscription_id as conflict key (more reliable for Stripe-driven updates)
         const { error: upsertError } = await supabaseAdmin
           .from('subscriptions')
-          .upsert({
-            user_id: userId,
-            tier: resolvedTier,
-            stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId,
-            status: subscription.status,
-            ...fields,
-          }, {
-            onConflict: 'user_id',
+          .upsert(subRecord, {
+            onConflict: 'stripe_subscription_id',
+            ignoreDuplicates: false,
           });
 
         if (upsertError) {
           console.error('Failed to upsert subscription:', upsertError);
+        } else {
+          console.log(`Subscription created/updated for user ${userId}, org ${orgId || 'none'}, tier ${resolvedTier}`);
         }
         break;
       }
@@ -117,16 +138,20 @@ export async function POST(request: Request) {
         const rawSub = event.data.object as any;
         const userId = rawSub.metadata?.user_id;
 
-        const findUserByCustomerId = async (customerId: string) => {
+        const findExistingSub = async (customerId: string) => {
           const { data } = await supabaseAdmin
             .from('subscriptions')
-            .select('user_id')
+            .select('user_id, organization_id')
             .eq('stripe_customer_id', customerId)
             .maybeSingle();
-          return data?.user_id;
+          return data;
         };
 
-        const resolvedUserId = userId || await findUserByCustomerId(rawSub.customer);
+        const existing = userId
+          ? null
+          : await findExistingSub(rawSub.customer);
+
+        const resolvedUserId = userId || existing?.user_id;
         if (!resolvedUserId) {
           console.error('Subscription event: no user_id found in metadata or DB');
           break;
@@ -136,17 +161,33 @@ export async function POST(request: Request) {
         const isDeleted = event.type === 'customer.subscription.deleted';
         const fields = extractSubFields(rawSub);
 
+        // Build update — preserve organization_id if already set
+        const updateData: any = {
+          tier,
+          ...fields,
+          status: isDeleted ? 'canceled' : (rawSub.status || 'active'),
+        };
+
+        // If we have an org_id from the existing record, include it
+        if (existing?.organization_id) {
+          updateData.organization_id = existing.organization_id;
+        } else {
+          // Try to look up org_id
+          const orgId = await getOrganizationId(resolvedUserId);
+          if (orgId) {
+            updateData.organization_id = orgId;
+          }
+        }
+
         const { error: updateError } = await supabaseAdmin
           .from('subscriptions')
-          .update({
-            tier,
-            ...fields,
-            status: isDeleted ? 'canceled' : (rawSub.status || 'active'),
-          })
+          .update(updateData)
           .eq('user_id', resolvedUserId);
 
         if (updateError) {
           console.error('Failed to update subscription:', updateError);
+        } else {
+          console.log(`Subscription ${isDeleted ? 'deleted' : 'updated'} for user ${resolvedUserId}, tier ${tier}`);
         }
         break;
       }

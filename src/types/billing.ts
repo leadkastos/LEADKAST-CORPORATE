@@ -31,6 +31,7 @@ export interface SubscriptionResponse {
   isTrialing: boolean;
   isCanceled: boolean;
   willCancel: boolean;
+  organizationId?: string | null;
 }
 
 export interface BillingError {

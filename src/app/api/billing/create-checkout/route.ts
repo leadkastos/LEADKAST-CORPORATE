@@ -53,6 +53,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get user's organization for multi-tenant support
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .maybeSingle();
+    const orgId = profile?.organization_id;
+
     const body = await request.json();
     const tier = body.tier as SubscriptionTier;
     const interval: 'month' | 'year' = body.interval || 'month';
@@ -95,11 +103,13 @@ export async function POST(request: Request) {
       metadata: {
         user_id: user.id,
         tier,
+        ...(orgId ? { organization_id: orgId } : {}),
       },
       subscription_data: {
         metadata: {
           user_id: user.id,
           tier,
+          ...(orgId ? { organization_id: orgId } : {}),
         },
       },
       success_url: successUrl,

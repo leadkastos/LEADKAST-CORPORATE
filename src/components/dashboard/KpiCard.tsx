@@ -11,6 +11,7 @@ interface KpiCardProps {
   iconColor?: string;
   subtitle?: string;
   sparkline?: number[];
+  badge?: string;
 }
 
 const trendConfig = {
@@ -19,46 +20,48 @@ const trendConfig = {
   neutral: { icon: Minus, bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/20' },
 };
 
-export function KpiCard({ title, value, change, trend, icon: Icon, iconColor, subtitle, sparkline }: KpiCardProps) {
-  const trendInfo = trend ? trendConfig[trend] : null;
-  const TrendIcon = trendInfo?.icon;
+export function KpiCard({ title, value, change, trend, icon: Icon, iconColor, subtitle, sparkline, badge }: KpiCardProps) {
+  const t = trend ? trendConfig[trend] : null;
+  const TrendIcon = t?.icon;
 
   return (
-    <div className={cn(
-      "group relative bg-slate-900/60 border border-slate-800/80 p-5 rounded-xl transition-all duration-200",
-      "hover:border-slate-700/80 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-slate-900/30",
-      "overflow-hidden"
-    )}>
-      <div className="absolute -inset-px rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-slate-800/0 via-slate-800/0 to-blue-500/5" />
-      </div>
+    <div className="group relative bg-gradient-to-br from-slate-900/80 to-slate-900/40 border border-slate-800/60 p-5 rounded-2xl transition-all duration-300 hover:border-slate-700/80 hover:shadow-[0_0_30px_-5px] hover:shadow-blue-500/5 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+      <div className={cn(
+        "absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 via-emerald-500/50 to-transparent"
+      )} />
       <div className="relative">
-        <div className="flex items-center justify-between mb-3">
-          <div className={cn("p-2 rounded-lg bg-slate-800/80 transition-colors group-hover:bg-slate-800", iconColor || "text-blue-400")}>
-            <Icon className="h-4.5 w-4.5" />
+        <div className="flex items-center justify-between mb-4">
+          <div className={cn("p-2.5 rounded-xl bg-slate-800/60 ring-1 ring-slate-700/50 transition-all duration-300 group-hover:ring-slate-600/50 group-hover:bg-slate-800/80", iconColor || "text-blue-400")}>
+            <Icon className="h-5 w-5" />
           </div>
-          {trendInfo && change && (
-            <div className={cn("flex items-center space-x-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border", trendInfo.bg, trendInfo.text, trendInfo.border)}>
-              {TrendIcon && <TrendIcon className="h-3 w-3" />}
-              <span>{change}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {badge && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-500 border border-slate-700/50 uppercase tracking-wider">{badge}</span>}
+            {t && change && (
+              <div className={cn("flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border", t.bg, t.text, t.border)}>
+                {TrendIcon && <TrendIcon className="h-3 w-3" />}
+                <span>{change}</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div>
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 mb-1">{title}</h3>
-          <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
-          {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+        <div className="mb-3">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 mb-1.5">{title}</h3>
+          <p className="text-3xl font-bold text-white tracking-tight">{value}</p>
+          {subtitle && <p className="text-[12px] text-slate-500 mt-1.5 font-medium">{subtitle}</p>}
         </div>
-        {sparkline && (
-          <div className="mt-3 h-6 flex items-end space-x-0.5">
-            {sparkline.map((h, i) => (
-              <div key={i} className={cn(
-                "flex-1 rounded-sm transition-all duration-300",
-                trend === 'up' ? 'bg-emerald-500/30 group-hover:bg-emerald-500/50' :
-                trend === 'down' ? 'bg-rose-500/30 group-hover:bg-rose-500/50' :
-                'bg-blue-500/30 group-hover:bg-blue-500/50'
-              )} style={{ height: `${Math.max(h, 8)}%` }} />
-            ))}
+        {sparkline && sparkline.length > 0 && (
+          <div className="relative h-10 mt-1">
+            <svg className="w-full h-full" viewBox={`0 0 ${sparkline.length * 10} 40`} preserveAspectRatio="none">
+              <defs>
+                <linearGradient id={`g-${title.replace(/\s/g,'')}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={trend === 'up' ? '#10b981' : trend === 'down' ? '#f43f5e' : '#3b82f6'} stopOpacity="0.25" />
+                  <stop offset="100%" stopColor={trend === 'up' ? '#10b981' : trend === 'down' ? '#f43f5e' : '#3b82f6'} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <polyline points={sparkline.map((v,i) => `${i*10+5},${40-(v/100)*35}`).join(' ')} fill="none" stroke={trend === 'up' ? '#10b981' : trend === 'down' ? '#f43f5e' : '#3b82f6'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover:opacity-100 transition-opacity" />
+              <polygon points={sparkline.map((v,i) => `${i*10+5},${40-(v/100)*35}`).join(' ') + ` ${(sparkline.length-1)*10+5},40 5,40`} fill={`url(#g-${title.replace(/\s/g,'')})`} className="opacity-60 group-hover:opacity-80 transition-opacity" />
+            </svg>
           </div>
         )}
       </div>

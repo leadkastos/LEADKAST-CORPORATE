@@ -1,104 +1,141 @@
+'use client';
 
 import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { DollarSign, ArrowUpRight, ArrowDownRight, PieChart, Activity, Zap } from 'lucide-react';
-import { mockRevenueMetrics } from '@/lib/mock-data';
+import { 
+  DollarSign, 
+  TrendingUp, 
+  Users, 
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+  Layers,
+  Zap,
+  ChevronRight
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { mockRevenueIntelligence } from '@/lib/mock-data';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
-export default function RevenueOperationsPage() {
+export default function RevenueIntelligence() {
+  const { summary, revenueMix, growthTrend } = mockRevenueIntelligence;
+  const COLORS = ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7'];
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Revenue Operations</h1>
-          <p className="text-slate-400">Executive financial health and growth tracking.</p>
+          <h1 className="text-2xl font-bold text-white">Revenue Intelligence</h1>
+          <p className="text-slate-400">Deep dive into ARR, MRR, LTV, and churn dynamics.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {mockRevenueMetrics.summary.map((metric, i) => (
-            <div key={i} className="bg-slate-900/50 border border-slate-800 p-6 rounded-xl">
-              <p className="text-sm text-slate-400 font-medium uppercase tracking-wider mb-2">{metric.label}</p>
+        {/* Summary Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {summary.map((stat, i) => (
+            <div key={i} className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
               <div className="flex items-end justify-between">
-                <h3 className="text-2xl font-bold text-white">{metric.value}</h3>
-                <span className={cn(
-                  "text-xs font-bold flex items-center mb-1",
-                  metric.trend.startsWith('+') ? "text-green-500" : "text-red-500"
+                <div className="text-2xl font-bold text-white">{stat.value}</div>
+                <div className={cn(
+                  "text-xs font-bold flex items-center",
+                  stat.trend.startsWith('+') ? "text-emerald-500" : "text-rose-500"
                 )}>
-                  {metric.trend.startsWith('+') ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
-                  {metric.trend}
-                </span>
+                  {stat.trend}
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6">Revenue Mix</h3>
-            <div className="space-y-8">
-              {mockRevenueMetrics.revenueBySource.map((source, i) => {
-                const total = mockRevenueMetrics.revenueBySource.reduce((acc, s) => acc + s.value, 0);
-                const percent = Math.round((source.value / total) * 100);
-                return (
-                  <div key={i} className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <div className={cn(
-                          "h-3 w-3 rounded-full",
-                          i === 0 ? "bg-blue-500" : i === 1 ? "bg-indigo-500" : "bg-slate-600"
-                        )} />
-                        <span className="text-sm font-semibold text-slate-300">{source.name}</span>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-sm font-bold text-white">${source.value.toLocaleString()}</span>
-                        <span className="text-xs text-slate-500 w-8 text-right">{percent}%</span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                      <div 
-                        className={cn(
-                          "h-full rounded-full transition-all duration-1000",
-                          i === 0 ? "bg-blue-500" : i === 1 ? "bg-indigo-500" : "bg-slate-600"
-                        )}
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* MRR Growth Trend */}
+          <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-8">MRR Growth Trend</h3>
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={growthTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="month" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v/1000}k`} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
+                    itemStyle={{ color: '#fff' }}
+                  />
+                  <Line type="monotone" dataKey="mrr" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 flex flex-col justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6">Financial Insights</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start space-x-4">
-                  <TrendingUp className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-bold text-green-400 mb-1">Growth Opportunity</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Upselling service packages to the top 10% of subscription users could increase ARR by an estimated $84,000.
-                    </p>
-                  </div>
-                </div>
-                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start space-x-4">
-                  <Activity className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-bold text-amber-400 mb-1">Churn Warning</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      "Services" revenue saw a 2% decline this month. Recommend reviewing customer satisfaction scores for Q2.
-                    </p>
-                  </div>
-                </div>
-              </div>
+          {/* Revenue Breakdown */}
+          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-6">Revenue Mix</h3>
+            <div className="h-[250px] w-full mb-8">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={revenueMix}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {revenueMix.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-            
-            <button className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg border border-slate-700 transition-all flex items-center justify-center space-x-2">
-              <Zap className="h-4 w-4 text-amber-400" />
-              <span>Generate Full Financial Audit</span>
-            </button>
+            <div className="space-y-4">
+              {revenueMix.map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-800/50">
+                   <div className="flex items-center space-x-3">
+                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+                      <span className="text-sm font-medium text-slate-300">{item.name}</span>
+                   </div>
+                   <span className="text-sm font-bold text-white">${(item.value / 1000).toFixed(0)}k</span>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+
+        {/* Churn Analytics */}
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+           <div className="flex items-center justify-between mb-8">
+              <h3 className="text-lg font-bold text-white">Churn Trend</h3>
+              <div className="flex items-center space-x-4">
+                 <div className="flex items-center space-x-1.5">
+                    <div className="h-2 w-2 rounded-full bg-rose-500" />
+                    <span className="text-xs text-slate-500">Churn Rate (%)</span>
+                 </div>
+              </div>
+           </div>
+           <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                 <BarChart data={growthTrend}>
+                    <XAxis dataKey="month" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
+                    <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} />
+                    <Bar dataKey="churn" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={40} />
+                 </BarChart>
+              </ResponsiveContainer>
+           </div>
         </div>
       </div>
     </DashboardLayout>

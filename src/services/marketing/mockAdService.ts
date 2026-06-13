@@ -40,11 +40,12 @@ export const fetchMockAdData = async (integrationSlug: string, days: number = 30
   return data;
 };
 
-export const syncMarketingData = async (userId: string, integrationId: string, integrationSlug: string) => {
+export const syncMarketingData = async (orgId: string, userId: string, integrationId: string, integrationSlug: string) => {
   const supabase = createClient();
   const mockData = await fetchMockAdData(integrationSlug);
 
   const records = mockData.map(item => ({
+    organization_id: orgId,
     user_id: userId,
     integration_id: integrationId,
     ...item
@@ -52,7 +53,7 @@ export const syncMarketingData = async (userId: string, integrationId: string, i
 
   const { error } = await supabase
     .from('ad_metrics')
-    .upsert(records, { onConflict: 'user_id,integration_id,date' });
+    .upsert(records, { onConflict: 'organization_id,integration_id,date' });
 
   if (error) {
     console.error(`Error syncing ${integrationSlug}:`, error);

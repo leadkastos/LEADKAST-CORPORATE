@@ -8,6 +8,7 @@ export interface Profile {
   id: string;
   full_name: string | null;
   role: 'super_admin' | 'business_owner' | 'manager';
+  organization_id: string | null;
 }
 
 export function useAuth() {
@@ -33,12 +34,12 @@ export function useAuth() {
         } else if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
           // Mock user for visual demo
           setUser({ id: 'mock-user', email: 'admin@leadkast.com' } as any);
-          setProfile({ id: 'mock-user', full_name: 'LeadKast Admin', role: 'business_owner' });
+          setProfile({ id: 'mock-user', full_name: 'LeadKast Admin', role: 'business_owner', organization_id: 'mock-org' });
         }
       } catch (err) {
         console.warn('Supabase auth failed, using mock user');
         setUser({ id: 'mock-user', email: 'admin@leadkast.com' } as any);
-        setProfile({ id: 'mock-user', full_name: 'LeadKast Admin', role: 'business_owner' });
+        setProfile({ id: 'mock-user', full_name: 'LeadKast Admin', role: 'business_owner', organization_id: 'mock-org' });
       }
       
       setLoading(false);

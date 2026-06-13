@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase';
 import { Alert, Lead } from '@/types/database';
 
-export const refreshAlerts = async (userId: string) => {
+export const refreshAlerts = async (orgId: string, userId: string) => {
   const supabase = createClient();
   const alerts: Partial<Alert>[] = [];
   const now = new Date();
@@ -15,12 +15,13 @@ export const refreshAlerts = async (userId: string) => {
   const { data: untouchedLeads } = await supabase
     .from('leads')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .eq('status', 'new')
     .lt('created_at', twentyFourHoursAgo.toISOString());
 
   if (untouchedLeads && untouchedLeads.length > 0) {
     alerts.push({
+      organization_id: orgId,
       user_id: userId,
       title: 'Untouched Leads',
       description: `You have ${untouchedLeads.length} leads that haven't been contacted in over 24 hours.`,
@@ -38,12 +39,13 @@ export const refreshAlerts = async (userId: string) => {
   const { data: stalledLeads } = await supabase
     .from('leads')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .in('status', ['spoke', 'qualified'])
     .lt('last_activity_at', sevenDaysAgo.toISOString());
 
   if (stalledLeads && stalledLeads.length > 0) {
     alerts.push({
+      organization_id: orgId,
       user_id: userId,
       title: 'Stalled Opportunities',
       description: `${stalledLeads.length} opportunities have had no activity for over 7 days.`,
@@ -58,7 +60,7 @@ export const refreshAlerts = async (userId: string) => {
   const { data: metrics } = await supabase
     .from('ad_metrics')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .order('date', { ascending: false })
     .limit(7);
 
@@ -72,6 +74,7 @@ export const refreshAlerts = async (userId: string) => {
 
     if (todayCPL > yesterdayCPL * 1.5 && todayCPL > 0) {
       alerts.push({
+        organization_id: orgId,
         user_id: userId,
         title: 'Cost Per Lead Increase',
         description: `Your CPL has increased by over 50% compared to yesterday.`,
@@ -85,6 +88,7 @@ export const refreshAlerts = async (userId: string) => {
     // Revenue/Spend Drop check
     if (todayMetric.spend < yesterdayMetric.spend * 0.5) {
       alerts.push({
+        organization_id: orgId,
         user_id: userId,
         title: 'Significant Revenue/Spend Drop',
         description: `Your ad spend/revenue has dropped by more than 50% compared to yesterday.`,
@@ -100,12 +104,13 @@ export const refreshAlerts = async (userId: string) => {
   const { data: negativeReviews } = await supabase
     .from('reviews')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .lt('rating', 3)
     .gte('created_at', yesterday.toISOString());
 
   if (negativeReviews && negativeReviews.length > 0) {
     alerts.push({
+      organization_id: orgId,
       user_id: userId,
       title: 'Negative Reviews Received',
       description: `You received ${negativeReviews.length} negative reviews since yesterday.`,
@@ -120,12 +125,13 @@ export const refreshAlerts = async (userId: string) => {
   const { data: noShows } = await supabase
     .from('appointments')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .eq('status', 'no_show')
     .gt('scheduled_at', yesterday.toISOString());
 
   if (noShows && noShows.length > 0) {
     alerts.push({
+      organization_id: orgId,
       user_id: userId,
       title: 'Appointment No-Shows',
       description: `${noShows.length} prospects did not show up for their appointments since yesterday.`,
@@ -143,12 +149,13 @@ export const refreshAlerts = async (userId: string) => {
   const { data: reactivationLeads } = await supabase
     .from('leads')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .in('status', ['lost', 'dormant'])
     .lt('last_activity_at', thirtyDaysAgo.toISOString());
 
   if (reactivationLeads && reactivationLeads.length > 0) {
     alerts.push({
+      organization_id: orgId,
       user_id: userId,
       title: 'Reactivation Opportunities',
       description: `You have ${reactivationLeads.length} past leads who could be re-engaged for new business.`,
@@ -164,7 +171,7 @@ export const refreshAlerts = async (userId: string) => {
     const { data: existingActive } = await supabase
       .from('alerts')
       .select('category')
-      .eq('user_id', userId)
+      .eq('organization_id', orgId)
       .eq('status', 'active');
 
     const activeCategories = new Set(existingActive?.map(a => a.category) || []);
@@ -179,12 +186,12 @@ export const refreshAlerts = async (userId: string) => {
   return { success: true, count: alerts.length };
 };
 
-export const getActiveAlerts = async (userId: string) => {
+export const getActiveAlerts = async (orgId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('alerts')
     .select('*')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .eq('status', 'active')
     .order('created_at', { ascending: false });
 

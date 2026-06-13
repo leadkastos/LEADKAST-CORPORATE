@@ -15,7 +15,7 @@ export interface ReportStats {
   action_completion_rate: number;
 }
 
-export const getExecutiveReport = async (userId: string, timeframe: '7d' | '30d' | 'mtd') => {
+export const getExecutiveReport = async (orgId: string, timeframe: '7d' | '30d' | 'mtd') => {
   const supabase = createClient();
   const now = new Date();
   let startDate: Date;
@@ -34,7 +34,7 @@ export const getExecutiveReport = async (userId: string, timeframe: '7d' | '30d'
   const { data: metrics } = await supabase
     .from('ad_metrics')
     .select('spend, leads, appointments')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .gte('date', startDate.toISOString().split('T')[0])
     .lte('date', endDate.toISOString().split('T')[0]);
 
@@ -44,7 +44,7 @@ export const getExecutiveReport = async (userId: string, timeframe: '7d' | '30d'
   const { data: leads } = await supabase
     .from('leads')
     .select('status, created_at, value')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .gte('created_at', startDate.toISOString())
     .lte('created_at', endDate.toISOString());
 
@@ -56,7 +56,7 @@ export const getExecutiveReport = async (userId: string, timeframe: '7d' | '30d'
   const { data: appointments } = await supabase
     .from('appointments')
     .select('status, scheduled_at')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .gte('scheduled_at', startDate.toISOString())
     .lte('scheduled_at', endDate.toISOString());
 
@@ -66,7 +66,7 @@ export const getExecutiveReport = async (userId: string, timeframe: '7d' | '30d'
   const { data: actions } = await supabase
     .from('action_items')
     .select('status, created_at')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .gte('created_at', startDate.toISOString())
     .lte('created_at', endDate.toISOString());
 

@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase';
 
-export const refreshActionItems = async (userId: string) => {
+export const refreshActionItems = async (orgId: string, userId: string) => {
   const supabase = createClient();
   
-  // Call the stored procedure to generate revenue recovery actions
-  const { error } = await supabase.rpc('generate_revenue_recovery_actions', { p_user_id: userId });
+  // Call the updated stored procedure
+  const { error } = await supabase.rpc('generate_revenue_recovery_actions_v2', { 
+    p_org_id: orgId,
+    p_user_id: userId 
+  });
   
   if (error) {
     console.error('Error refreshing action items:', error);
@@ -14,12 +17,12 @@ export const refreshActionItems = async (userId: string) => {
   return { success: true };
 };
 
-export const getActionItems = async (userId: string) => {
+export const getActionItems = async (orgId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('action_items')
     .select('*, leads(*)')
-    .eq('user_id', userId)
+    .eq('organization_id', orgId)
     .eq('status', 'pending')
     .order('priority', { ascending: false });
 

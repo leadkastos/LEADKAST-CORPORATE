@@ -1,87 +1,200 @@
-// ── LeadKast OS Mock Data Engine ─────────────────────────────────
-export type Trend = 'up' | 'down' | 'neutral';
-export type AlertType = 'warning' | 'success' | 'error' | 'info';
-export type Priority = 'high' | 'medium' | 'low';
-export type Status = 'active' | 'paused' | 'ended' | 'new' | 'updated' | 'archived';
-export type CampaignStatus = 'active' | 'paused' | 'ended';
+import { subDays, format, startOfMonth, eachDayOfInterval, eachWeekOfInterval } from 'date-fns';
 
-export interface KpiData {
-  title: string; value: string; change: string; trend: Trend;
-  icon: string; iconColor: string; subtitle: string; sparkline: number[];
-}
+// --- Utilities ---
+const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+const randFloat = (min: number, max: number) => +(Math.random() * (max - min) + min).toFixed(2);
 
-export interface AlertItem {
-  id: number; title: string; description: string; time: string;
-  type: AlertType; action: string; category: string; severity: 'critical' | 'high' | 'medium' | 'low';
-}
+// --- Core Intelligence Data ---
 
-export interface ActionItem {
-  id: number; title: string; description: string; priority: Priority;
-  impact: string; time: string; category: string; assignedTo: string; progress: number;
-}
+export const mockExecutiveDashboard = {
+  healthScore: 88,
+  morningBrief: {
+    greeting: "Good morning, Sarah",
+    summary: "Your business health is strong today. Revenue is up 12% week-over-week, primarily driven by a surge in Meta Ads performance.",
+    topAction: "Follow up with 5 high-value dormant leads in the Revenue Recovery center.",
+    alertsCount: 3,
+  },
+  kpis: [
+    { label: 'MRR', value: '$124,500', trend: '+12.4%', trendType: 'up' as const },
+    { label: 'Active Leads', value: '1,432', trend: '+8.2%', trendType: 'up' as const },
+    { label: 'Win Rate', value: '24.2%', trend: '-1.5%', trendType: 'down' as const },
+    { label: 'Avg. CAC', value: '$42.30', trend: '-5.4%', trendType: 'up' as const }, // up trend for CAC decrease is good
+  ],
+  performanceTrend: Array.from({ length: 30 }, (_, i) => ({
+    date: format(subDays(new Date(), 29 - i), 'MMM dd'),
+    revenue: rand(3000, 6000),
+    target: 4500,
+  })),
+};
 
-export interface ActivityItem {
-  user: string; action: string; target: string; value: string; time: string; type: string;
-}
+export const mockMarketingIntelligence = {
+  summary: [
+    { label: 'Total Spend', value: '$42,300', trend: '+5.2%' },
+    { label: 'Total Leads', value: '842', trend: '+12.1%' },
+    { label: 'Avg. CPL', value: '$50.23', trend: '-6.4%' },
+    { label: 'ROAS', value: '4.2x', trend: '+0.8x' },
+  ],
+  channels: [
+    { name: 'Meta Ads', spend: 18500, leads: 420, cpl: 44.05, roas: 4.8 },
+    { name: 'Google Ads', spend: 15200, leads: 280, cpl: 54.28, roas: 3.5 },
+    { name: 'LinkedIn', spend: 8600, leads: 142, cpl: 60.56, roas: 2.9 },
+  ],
+  dailyTrends: Array.from({ length: 14 }, (_, i) => ({
+    date: format(subDays(new Date(), 13 - i), 'MMM dd'),
+    spend: rand(1000, 2500),
+    leads: rand(20, 50),
+    roas: randFloat(2.5, 5.5),
+  })),
+};
 
-export interface ReportData {
-  id: number; title: string; category: string; description: string;
-  date: string; pages: number; readTime: string; status: Status;
-  trend: Trend; value: string; chart: number[];
-}
+export const mockRevenueIntelligence = {
+  summary: [
+    { label: 'ARR', value: '$1,494,000', trend: '+10.5%' },
+    { label: 'MRR', value: '$124,500', trend: '+8.2%' },
+    { label: 'LTV', value: '$3,850', trend: '+4.1%' },
+    { label: 'Churn Rate', value: '1.8%', trend: '-0.2%' },
+  ],
+  revenueMix: [
+    { name: 'Subscriptions', value: 850000 },
+    { name: 'Services', value: 340000 },
+    { name: 'Add-ons', value: 154000 },
+    { name: 'Overage', value: 150000 },
+  ],
+  growthTrend: Array.from({ length: 12 }, (_, i) => ({
+    month: format(subDays(new Date(), (11 - i) * 30), 'MMM'),
+    mrr: 100000 + (i * 2500) + rand(-1000, 1000),
+    churn: randFloat(1.2, 2.5),
+  })),
+};
 
-export const executiveAlerts: AlertItem[] = [
-  { id: 1, title: 'Ad budget at 92% of monthly cap', description: 'Google Ads spend approaching limit with 5 days remaining', time: '2h ago', type: 'warning', action: 'Review Campaigns', category: 'Marketing', severity: 'high' },
-  { id: 2, title: 'Enterprise deal closed: Acme Corp', description: 'Largest deal this quarter — $24k/mo Enterprise contract signed', time: '4h ago', type: 'success', action: 'View Profile', category: 'Sales', severity: 'low' },
-  { id: 3, title: 'CRM integration sync failure', description: 'HubSpot API error: 12 records failed to sync', time: '6h ago', type: 'error', action: 'Investigate', category: 'Engineering', severity: 'critical' },
-  { id: 4, title: 'Q4 revenue target achieved', description: 'Quarterly target hit at 108% — two weeks early', time: '1d ago', type: 'success', action: 'View Report', category: 'Finance', severity: 'low' },
-  { id: 5, title: 'Churn risk: 3 accounts flagged', description: 'High-risk accounts with $45k combined ARR exposure', time: '1d ago', type: 'warning', action: 'Review Accounts', category: 'Customer Success', severity: 'high' },
-  { id: 6, title: 'Competitor analysis ready', description: 'Market report shows 3 new entrants with competitive pricing', time: '1d ago', type: 'info', action: 'View Analysis', category: 'Strategy', severity: 'medium' },
-  { id: 7, title: 'SSL certificate expiring soon', description: 'Production cert expires in 14 days — renewal required', time: '2d ago', type: 'warning', action: 'Renew Certificate', category: 'Engineering', severity: 'critical' },
-  { id: 8, title: 'Employee survey results published', description: 'Q4 engagement score: 8.4/10 — up 0.3 from Q3', time: '2d ago', type: 'success', action: 'View Dashboard', category: 'HR', severity: 'low' },
+export const mockPipelineIntelligence = {
+  summary: [
+    { label: 'Open Deals', value: '158', trend: '+12' },
+    { label: 'Pipeline Value', value: '$3,160,000', trend: '+$420k' },
+    { label: 'Weighted Value', value: '$1,240,000', trend: '+$180k' },
+    { label: 'Avg. Deal Size', value: '$20,000', trend: '+2.5%' },
+  ],
+  stages: [
+    { name: 'Discovery', count: 45, value: 900000, color: '#3b82f6' },
+    { name: 'Qualification', count: 32, value: 640000, color: '#6366f1' },
+    { name: 'Proposal', count: 28, value: 560000, color: '#8b5cf6' },
+    { name: 'Negotiation', count: 22, value: 440000, color: '#a855f7' },
+    { name: 'Closing', count: 15, value: 300000, color: '#d946ef' },
+    { name: 'Won', count: 16, value: 320000, color: '#10b981' },
+  ],
+};
+
+export const mockSalesIntelligence = {
+  summary: [
+    { label: 'Outbound Calls', value: '3,842', trend: '+15%' },
+    { label: 'Appointments', value: '412', trend: '+8%' },
+    { label: 'Deals Closed', value: '92', trend: '+12%' },
+    { label: 'Win Rate', value: '22.3%', trend: '+1.5%' },
+  ],
+  teamLeaderboard: [
+    { name: 'Alex Rivera', deals: 24, value: 480000, goal: 500000, progress: 96 },
+    { name: 'Sarah Miller', deals: 21, value: 420000, goal: 400000, progress: 105 },
+    { name: 'Jordan Chen', deals: 18, value: 360000, goal: 450000, progress: 80 },
+    { name: 'Taylor Swift', deals: 15, value: 300000, goal: 300000, progress: 100 },
+    { name: 'Sam Smith', deals: 14, value: 280000, goal: 400000, progress: 70 },
+  ],
+  activityTrends: Array.from({ length: 7 }, (_, i) => ({
+    day: format(subDays(new Date(), 6 - i), 'EEE'),
+    calls: rand(400, 700),
+    appointments: rand(40, 70),
+    won: rand(5, 15),
+  })),
+};
+
+export const mockRevenueRecovery = {
+  summary: [
+    { label: 'At-Risk Revenue', value: '$142,500', level: 'high' },
+    { label: 'Dormant Leads', value: '214', level: 'medium' },
+    { label: 'Failed Payments', value: '18', level: 'high' },
+    { label: 'Recovered (MTD)', value: '$64,200', level: 'info' },
+  ],
+  atRiskBreakdown: [
+    { name: 'Dormant (30d+)', value: 85000 },
+    { name: 'Failed Payment', value: 42000 },
+    { name: 'No-Show Followup', value: 15500 },
+  ],
+  recentLosses: [
+    { id: '1', company: 'Global Tech', value: '$12,000', status: 'Dormant', age: '45 days' },
+    { id: '2', company: 'Acme Corp', value: '$8,500', status: 'Failed Pay', age: '2 days' },
+    { id: '3', company: 'Zion Inc', value: '$25,000', status: 'Stalled', age: '14 days' },
+  ],
+};
+
+export const mockIntegrations = [
+  { id: '1', name: 'GoHighLevel', slug: 'gohighlevel', category: 'CRM', status: 'connected', lastSync: '2m ago', description: 'Primary CRM and automation engine.' },
+  { id: '2', name: 'Meta Ads', slug: 'meta-ads', category: 'Marketing', status: 'connected', lastSync: '14m ago', description: 'Facebook and Instagram advertising.' },
+  { id: '3', name: 'Google Ads', slug: 'google-ads', category: 'Marketing', status: 'connected', lastSync: '1h ago', description: 'Search and Display network.' },
+  { id: '4', name: 'Stripe', slug: 'stripe', category: 'Finance', status: 'connected', lastSync: '30m ago', description: 'Payment processing and MRR tracking.' },
+  { id: '5', name: 'HubSpot', slug: 'hubspot', category: 'CRM', status: 'disconnected', lastSync: 'Never', description: 'Alternative CRM integration.' },
+  { id: '6', name: 'LinkedIn Ads', slug: 'linkedin-ads', category: 'Marketing', status: 'coming_soon', lastSync: '-', description: 'Professional network advertising.' },
+  { id: '7', name: 'QuickBooks', slug: 'quickbooks', category: 'Finance', status: 'coming_soon', lastSync: '-', description: 'Accounting and expense tracking.' },
 ];
 
-export const actionItems: ActionItem[] = [
-  { id: 1, title: 'Optimize underperforming ad campaigns', description: '3 campaigns with ROAS below 2.0x — reallocate budget', priority: 'high', impact: '+15% ROAS', time: '2h', category: 'Marketing', assignedTo: 'Sarah Chen', progress: 30 },
-  { id: 2, title: 'Follow up with warm leads', description: '5 leads scored 85+ ready for sales outreach', priority: 'high', impact: '+$38k pipeline', time: '4h', category: 'Sales', assignedTo: 'Marcus Johnson', progress: 60 },
-  { id: 3, title: 'Approve Q1 content strategy', description: 'Editorial calendar and budget pending final review', priority: 'medium', impact: 'Brand alignment', time: '1d', category: 'Marketing', assignedTo: 'You', progress: 0 },
-  { id: 4, title: 'Review pricing tier adjustments', description: 'Competitor data suggests 12% room for optimization', priority: 'medium', impact: '+8% MRR', time: '3d', category: 'Product', assignedTo: 'David Kim', progress: 20 },
-  { id: 5, title: 'Fix CRM data sync issue', description: 'HubSpot integration needs re-authentication', priority: 'high', impact: 'Data integrity', time: '1d', category: 'Engineering', assignedTo: 'Engineering', progress: 0 },
-  { id: 6, title: 'Prepare board meeting materials', description: 'Q4 board deck with financial summaries and projections', priority: 'medium', impact: 'Investor confidence', time: '5d', category: 'Executive', assignedTo: 'You', progress: 15 },
-  { id: 7, title: 'Audit customer onboarding flow', description: 'New user activation at 62% — target is 75%', priority: 'low', impact: '+13% activation', time: '1w', category: 'Product', assignedTo: 'Lisa Patel', progress: 10 },
-  { id: 8, title: 'Renew SSL certificate', description: 'Production cert expires in 14 days', priority: 'high', impact: 'Site availability', time: '2d', category: 'Engineering', assignedTo: 'DevOps', progress: 0 },
+export const mockAlerts = [
+  { id: '1', title: 'CPL Spike: Meta Ads', description: 'Cost per lead increased by 45% in the last 24 hours.', level: 'critical', category: 'marketing', time: '1 hour ago' },
+  { id: '2', title: 'High Churn Risk', description: '3 high-value accounts have not logged in for over 14 days.', level: 'warning', category: 'revenue', time: '4 hours ago' },
+  { id: '3', title: 'New Negative Review', description: 'A 2-star review was posted on Google Business Profile.', level: 'warning', category: 'sales', time: 'Yesterday' },
+  { id: '4', title: 'Data Sync Success', description: 'All integration data was successfully refreshed.', level: 'info', category: 'system', time: '2 mins ago' },
 ];
 
-export const recentActivity: ActivityItem[] = [
-  { user: 'Sarah Chen', action: 'closed deal', target: 'Acme Corp', value: '+$24k MRR', time: '4h ago', type: 'deal' },
-  { user: 'Marcus Johnson', action: 'published', target: 'Q4 Executive Summary', value: '12 pages', time: '6h ago', type: 'report' },
-  { user: 'Emily Rodriguez', action: 'completed audit', target: 'Marketing Campaign ROI', value: '92% score', time: '8h ago', type: 'audit' },
-  { user: 'David Kim', action: 'resolved', target: 'CRM Integration Sync', value: '12 records', time: '10h ago', type: 'resolve' },
-  { user: 'Lisa Patel', action: 'launched', target: 'Holiday Promo Q4', value: '$18k budget', time: '1d ago', type: 'launch' },
+export const mockActionItems = [
+  { id: '1', title: 'Follow up with Global Tech', description: 'Lead has been dormant for 45 days. High recovery potential.', priority: 'critical', impact: 'High', category: 'Recovery' },
+  { id: '2', title: 'Optimize Google Ads Budget', description: 'Redistribute $2k from low-performing keywords.', priority: 'high', impact: 'Medium', category: 'Marketing' },
+  { id: '3', title: 'Review Failed Payments', description: '2 payments from yesterday need manual intervention.', priority: 'critical', impact: 'High', category: 'Finance' },
+  { id: '4', title: 'Update Sales Playbook', description: 'Refresh discovery questions for Q3.', priority: 'medium', impact: 'Low', category: 'Sales' },
 ];
 
-export const kpiMetrics = [
-  { title: 'Monthly Recurring Revenue', value: '$180,240', change: '+12.5%', trend: 'up', icon: 'DollarSign', iconColor: 'text-emerald-400', subtitle: '$24k MoM growth / 92% margin', sparkline: [42,38,55,48,62,58,70,65,78,72,85,92] },
-  { title: 'Active Customers', value: '1,250', change: '+5.2%', trend: 'up', icon: 'Users', iconColor: 'text-blue-400', subtitle: '18 new / 4 churned this month', sparkline: [50,52,55,58,60,62,65,68,72,75,78,82] },
-  { title: 'Conversion Rate', value: '5.2%', change: '+0.6%', trend: 'up', icon: 'TrendingUp', iconColor: 'text-indigo-400', subtitle: 'vs 4.6% last quarter', sparkline: [45,48,46,52,50,55,52,58,54,60,56,62] },
-  { title: 'Execution Score', value: '94/100', change: '+3pts', trend: 'up', icon: 'Zap', iconColor: 'text-amber-400', subtitle: 'Top quartile / 87% tasks done', sparkline: [78,80,82,85,84,86,88,89,91,90,92,94] },
+export const mockReports = [
+  { id: '1', name: 'May Executive Summary', type: 'Executive', date: 'Jun 1, 2026', status: 'final' },
+  { id: '2', name: 'Q2 Marketing Performance', type: 'Marketing', date: 'May 15, 2026', status: 'final' },
+  { id: '3', name: 'Revenue Recovery Audit', type: 'Financial', date: 'May 10, 2026', status: 'archived' },
+  { id: '4', name: 'Sales Pipeline Velocity', type: 'Operations', date: 'May 1, 2026', status: 'final' },
 ];
 
-export const channelData = [
-  { name: 'Organic Search', value: 35, color: '#3B82F6' },
-  { name: 'Paid Advertising', value: 25, color: '#6366F1' },
-  { name: 'Social Media', value: 20, color: '#8B5CF6' },
-  { name: 'Email Marketing', value: 12, color: '#A855F7' },
-  { name: 'Referrals', value: 8, color: '#10B981' },
-];
+export const mockAgencyDashboard = {
+  totalClients: 42,
+  activeCampaigns: 156,
+  totalManagedSpend: '$1.2M',
+  avgClientHealth: 84,
+  clients: [
+    { name: 'TechCore Solutions', health: 92, spend: '$12k', status: 'active' },
+    { name: 'Aria Green', health: 78, spend: '$8k', status: 'warning' },
+    { name: 'Nexus Group', health: 88, spend: '$25k', status: 'active' },
+    { name: 'Skyline Inc', health: 64, spend: '$15k', status: 'critical' },
+  ]
+};
 
-export const reports: ReportData[] = [
-  { id: 1, title: 'Monthly Revenue Report', category: 'revenue', description: 'Revenue streams, MRR trends, and growth metrics.', date: 'Dec 1, 2025', pages: 8, readTime: '12 min', status: 'updated', trend: 'up', value: '+12.5%', chart: [42,55,48,70,62,85] },
-  { id: 2, title: 'Marketing Dashboard', category: 'marketing', description: 'Channel attribution, campaign ROI, conversions.', date: 'Nov 28, 2025', pages: 12, readTime: '15 min', status: 'new', trend: 'up', value: '+18.2%', chart: [35,48,52,60,55,72] },
-  { id: 3, title: 'Customer Acquisition Analysis', category: 'customers', description: 'CAC trends, LTV analysis, cohort retention.', date: 'Nov 25, 2025', pages: 10, readTime: '10 min', status: 'updated', trend: 'up', value: '+5.4%', chart: [50,52,55,58,62,68] },
-  { id: 4, title: 'Q4 Executive Summary', category: 'all', description: 'Quarterly business health with key insights.', date: 'Oct 1, 2025', pages: 6, readTime: '8 min', status: 'archived', trend: 'neutral', value: 'Stable', chart: [60,65,62,70,68,75] },
-  { id: 5, title: 'Revenue by Product Line', category: 'revenue', description: 'Revenue across all product lines and tiers.', date: 'Nov 30, 2025', pages: 14, readTime: '18 min', status: 'updated', trend: 'up', value: '+9.8%', chart: [38,45,42,55,50,65] },
-  { id: 6, title: 'Churn Risk Assessment', category: 'customers', description: 'Churn indicators, at-risk accounts, retention.', date: 'Nov 22, 2025', pages: 8, readTime: '10 min', status: 'new', trend: 'down', value: '-2.1%', chart: [70,65,68,60,55,50] },
-  { id: 7, title: 'Ad Spend ROI Analysis', category: 'marketing', description: 'ROAS across Google, LinkedIn, and Meta.', date: 'Nov 27, 2025', pages: 10, readTime: '12 min', status: 'updated', trend: 'up', value: '+22.3%', chart: [25,32,40,35,48,55] },
-  { id: 8, title: 'Operational Efficiency', category: 'operations', description: 'Process metrics, resource allocation, automation.', date: 'Nov 20, 2025', pages: 6, readTime: '7 min', status: 'archived', trend: 'neutral', value: '+3.0%', chart: [55,58,55,60,62,65] },
-];
+export const mockBusinessDashboard = {
+  businessName: "Acme Enterprise",
+  locations: 12,
+  totalEmployees: 450,
+  departmentScores: [
+    { name: 'Marketing', score: 82 },
+    { name: 'Sales', score: 78 },
+    { name: 'Finance', score: 94 },
+    { name: 'Ops', score: 85 },
+  ]
+};
+
+export const mockSuperAdmin = {
+  totalUsers: 1240,
+  totalOrganizations: 320,
+  systemHealth: 'Healthy',
+  pendingSupport: 5,
+  recentOrgs: [
+    { name: 'New Corp', created: '2h ago', plan: 'Enterprise' },
+    { name: 'Startup Inc', created: '5h ago', plan: 'Pro' },
+    { name: 'Small Biz', created: '1d ago', plan: 'Free' },
+  ]
+};
+
+export const getConnectednessScore = () => {
+  const connectedCount = mockIntegrations.filter(i => i.status === 'connected').length;
+  const totalPotential = mockIntegrations.filter(i => i.status !== 'coming_soon').length;
+  return Math.round((connectedCount / totalPotential) * 100);
+};

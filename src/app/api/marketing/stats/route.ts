@@ -28,11 +28,24 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Get user profile to find organization_id
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('organization_id')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.organization_id) {
+    return NextResponse.json({ error: 'No organization found' }, { status: 400 });
+  }
+
+  const orgId = profile.organization_id;
+
   // Get aggregated stats
   const { data: summary, error } = await supabase
     .from('marketing_intelligence_summary')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('organization_id', orgId)
     .single();
 
   if (error && error.code !== 'PGRST116') { // PGRST116 is 'no rows returned'
@@ -43,7 +56,7 @@ export async function GET(request: Request) {
   const { data: dailyMetrics, error: metricsError } = await supabase
     .from('ad_metrics')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('organization_id', orgId)
     .order('date', { ascending: true })
     .limit(30);
 

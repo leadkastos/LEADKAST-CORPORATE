@@ -1,12 +1,13 @@
 import { IIntegrationAdapter } from './types';
 import { GoogleAdsAdapter } from './GoogleAdsAdapter';
+import { GHLAdapter } from './GHLAdapter';
 
 class AdapterRegistry {
   private adapters: Map<string, IIntegrationAdapter> = new Map();
 
   constructor() {
     this.register(new GoogleAdsAdapter());
-    // Register more adapters here as they are implemented
+    this.register(new GHLAdapter());
   }
 
   register(adapter: IIntegrationAdapter) {

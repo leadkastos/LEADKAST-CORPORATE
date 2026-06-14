@@ -78,6 +78,8 @@ const navigation: NavGroup[] = [
     title: 'Administration',
     items: [
       { name: 'Integrations', href: '/integrations', icon: Bell },
+      { name: 'Agency Dashboard', href: '/agency', icon: Users, badge: 'beta' },
+      { name: 'Business Hub', href: '/business', icon: Building2, badge: 'beta' },
       { name: 'User Permissions', href: '/admin/permissions', icon: ShieldCheck },
       { name: 'Settings', href: '/settings', icon: Settings },
     ],

@@ -23,9 +23,14 @@ export default function IntegrationsPage() {
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const handleConnect = (id: string) => {
+  const handleConnect = (id: string, name: string) => {
+    if (name === 'GoHighLevel') {
+      window.location.href = '/api/integrations/ghl/authorize';
+      return;
+    }
+    
     setConnectingId(id);
-    // Simulate connection
+    // Simulate connection for others
     setTimeout(() => {
       setIntegrations(prev => prev.map(int => 
         int.id === id ? { ...int, status: 'connected', lastSync: 'Just now' } : int
@@ -128,7 +133,7 @@ export default function IntegrationsPage() {
                        <button disabled className="w-full py-2 bg-slate-800 text-slate-600 text-xs font-bold rounded-lg cursor-not-allowed">Coming Soon</button>
                     ) : (
                       <button
-                        onClick={() => handleConnect(item.id)}
+                        onClick={() => handleConnect(item.id, item.name)}
                         disabled={connectingId === item.id}
                         className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center"
                       >

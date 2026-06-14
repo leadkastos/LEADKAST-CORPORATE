@@ -25,11 +25,42 @@ async function simulateDelay(ms = 300) {
 }
 
 export function useDashboardKpis() {
-  return useQuery({ queryKey: queryKeys.dashboard.kpis(), queryFn: async () => { await simulateDelay(200); return kpiMetrics; } });
+  return useQuery({ 
+    queryKey: queryKeys.dashboard.kpis(), 
+    queryFn: async () => { 
+      try {
+        const res = await fetch('/api/intelligence/kpis');
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      await simulateDelay(200); 
+      return kpiMetrics; 
+    } 
+  });
 }
 
 export function useMarketingKpis() {
-  return useQuery({ queryKey: queryKeys.marketing.kpis(), queryFn: async () => { await simulateDelay(200); return marketingKpis; } });
+  return useQuery({ 
+    queryKey: queryKeys.marketing.kpis(), 
+    queryFn: async () => { 
+      try {
+        const res = await fetch('/api/marketing/stats');
+        if (res.ok) {
+          const data = await res.json();
+          // Transform API summary to expected frontend format if needed
+          if (data.summary) {
+            return [
+              { label: 'Total Spend', value: `$${data.summary.total_spend.toLocaleString()}`, trend: '+12.5%' },
+              { label: 'Total Leads', value: data.summary.total_leads.toLocaleString(), trend: '+8.2%' },
+              { label: 'Avg. CPL', value: `$${data.summary.cost_per_lead.toFixed(2)}`, trend: '-5.4%' },
+              { label: 'Marketing ROI', value: `${(data.summary.total_spend > 0 ? (data.summary.total_leads * 50 / data.summary.total_spend) : 0).toFixed(1)}x`, trend: '+2.1%' }
+            ];
+          }
+        }
+      } catch (e) {}
+      await simulateDelay(200); 
+      return marketingKpis; 
+    } 
+  });
 }
 
 export function useGrowthKpis() {

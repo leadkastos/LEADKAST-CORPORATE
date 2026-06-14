@@ -126,7 +126,7 @@ export const mockRevenueRecovery = {
 };
 
 export const mockIntegrations = [
-  { id: '1', name: 'GoHighLevel', slug: 'gohighlevel', category: 'CRM', status: 'connected', lastSync: '2m ago', description: 'Primary CRM and automation engine.' },
+  { id: '1', name: 'GoHighLevel', slug: 'gohighlevel', category: 'CRM', status: 'disconnected', lastSync: '2m ago', description: 'Primary CRM and automation engine.' },
   { id: '2', name: 'Meta Ads', slug: 'meta-ads', category: 'Marketing', status: 'connected', lastSync: '14m ago', description: 'Facebook and Instagram advertising.' },
   { id: '3', name: 'Google Ads', slug: 'google-ads', category: 'Marketing', status: 'connected', lastSync: '1h ago', description: 'Search and Display network.' },
   { id: '4', name: 'Stripe', slug: 'stripe', category: 'Finance', status: 'connected', lastSync: '30m ago', description: 'Payment processing and MRR tracking.' },

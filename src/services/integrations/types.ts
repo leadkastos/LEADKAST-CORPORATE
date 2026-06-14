@@ -1,3 +1,5 @@
+import { SupabaseClient } from '@supabase/supabase-js';
+
 export interface IntegrationMetric {
   date: string;
   spend: number;
@@ -23,14 +25,14 @@ export interface IIntegrationAdapter {
   category: string;
   
   // Auth
-  isConnected(orgId: string): Promise<boolean>;
+  isConnected(orgId: string, supabase: SupabaseClient): Promise<boolean>;
   
   // Marketing
-  fetchMetrics?(orgId: string, startDate: string, endDate: string): Promise<IntegrationMetric[]>;
+  fetchMetrics?(orgId: string, startDate: string, endDate: string, supabase: SupabaseClient): Promise<IntegrationMetric[]>;
   
   // CRM
-  fetchLeads?(orgId: string, since?: string): Promise<IntegrationLead[]>;
+  fetchLeads?(orgId: string, since?: string, supabase?: SupabaseClient): Promise<IntegrationLead[]>;
   
   // Sync
-  sync(orgId: string): Promise<{ success: boolean; message: string; recordsProcessed: number }>;
+  sync(orgId: string, supabase: SupabaseClient): Promise<{ success: boolean; message: string; recordsProcessed: number }>;
 }

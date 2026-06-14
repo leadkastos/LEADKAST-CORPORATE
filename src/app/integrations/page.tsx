@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { 
   Plus, 
@@ -19,9 +19,33 @@ import { mockIntegrations } from '@/lib/mock-data';
 import { BusinessConnectednessScore } from '@/components/dashboard/BusinessConnectednessScore';
 
 export default function IntegrationsPage() {
-  const [integrations, setIntegrations] = useState(mockIntegrations);
+  const [integrations, setIntegrations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    fetchIntegrations();
+  }, []);
+
+  const fetchIntegrations = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/integrations');
+      const data = await response.json();
+      if (data.integrations) {
+        setIntegrations(data.integrations);
+      } else {
+        // Fallback to mock if API fails or returns no integrations
+        setIntegrations(mockIntegrations);
+      }
+    } catch (err) {
+      console.error('Failed to fetch integrations:', err);
+      setIntegrations(mockIntegrations);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConnect = (id: string, name: string) => {
     if (name === 'GoHighLevel') {
@@ -49,10 +73,7 @@ export default function IntegrationsPage() {
       console.log('Sync results:', data);
       
       if (data.success) {
-        setIntegrations(prev => prev.map(int => ({
-          ...int,
-          lastSync: 'Just now'
-        })));
+        fetchIntegrations();
       }
     } catch (err) {
       console.error('Sync failed:', err);
@@ -60,6 +81,17 @@ export default function IntegrationsPage() {
       setIsSyncing(false);
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64 text-white">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500 mr-3" />
+          <span>Loading integrations...</span>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

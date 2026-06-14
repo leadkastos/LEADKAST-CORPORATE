@@ -6,7 +6,7 @@ export class GoogleAdsAdapter extends BaseAdapter {
   slug = 'google-ads';
   category = 'Marketing';
 
-  async fetchMetrics(orgId: string, startDate: string, endDate: string): Promise<IntegrationMetric[]> {
+  async fetchMetrics(orgId: string, startDate: string, endDate: string, supabase: SupabaseClient): Promise<IntegrationMetric[]> {
     // In a real implementation, this would call the Google Ads API using credentials
     // const credentials = await this.getCredentials(orgId, supabase);
     
@@ -32,7 +32,7 @@ export class GoogleAdsAdapter extends BaseAdapter {
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      const metrics = await this.fetchMetrics(orgId, startDate, endDate);
+      const metrics = await this.fetchMetrics(orgId, startDate, endDate, supabase);
 
       // Save to database
       for (const metric of metrics) {
@@ -48,7 +48,7 @@ export class GoogleAdsAdapter extends BaseAdapter {
             leads: metric.leads,
             appointments: metric.appointments || 0,
           }, { onConflict: 'organization_id,integration_id,date' });
-
+        
         if (error) throw error;
       }
 

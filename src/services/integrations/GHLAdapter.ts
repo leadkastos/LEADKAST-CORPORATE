@@ -131,6 +131,8 @@ export class GHLAdapter extends BaseAdapter {
 
       // 3. Fetch and Persist Leads
       const leads = await this.fetchLeads(orgId, undefined, supabase);
+      let leadErrorCount = 0;
+      let lastLeadError: string | null = null;
       for (const lead of leads) {
         const { error } = await supabase
           .from('leads')
@@ -145,13 +147,23 @@ export class GHLAdapter extends BaseAdapter {
             source: lead.source,
             created_at: lead.createdAt,
           }, { onConflict: 'organization_id,external_id' });
-        
-        if (!error) processedCount++;
+
+        if (error) {
+          leadErrorCount++;
+          lastLeadError = error.message;
+          console.error(`[GHLAdapter] Lead upsert failed for external_id ${lead.externalId}:`, error.message);
+        } else {
+          processedCount++;
+        }
       }
 
+      const leadSummary = leadErrorCount > 0
+        ? ` (${leadErrorCount} lead write(s) failed; last error: ${lastLeadError})`
+        : '';
+
       return {
-        success: true,
-        message: `GoHighLevel sync complete. Processed ${processedCount} records.`,
+        success: leadErrorCount === 0,
+        message: `GoHighLevel sync complete. Processed ${processedCount} records.${leadSummary}`,
         recordsProcessed: processedCount
       };
     } catch (error: any) {

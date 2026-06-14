@@ -29,11 +29,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Get active marketing integrations for this user
-  const { data: userIntegrations, error } = await supabase
-    .from('user_integrations')
+  // Resolve the user's organization (integrations are org-scoped after the
+  // multi-tenant transition; user_integrations was renamed to
+  // organization_integrations).
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('organization_id')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.organization_id) {
+    return NextResponse.json({ error: 'No organization found' }, { status: 400 });
+  }
+
+  // Get active marketing integrations for this organization
+  const { data: orgIntegrations, error } = await supabase
+    .from('organization_integrations')
     .select('*, integrations!inner(*)')
-    .eq('user_id', user.id)
+    .eq('organization_id', profile.organization_id)
     .eq('status', 'active')
     .in('integrations.slug', ['meta-ads', 'google-ads']);
 
@@ -42,10 +55,10 @@ export async function POST(request: Request) {
   }
 
   const results = [];
-  for (const ui of userIntegrations) {
-    const res = await syncMarketingData(user.id, ui.integration_id, ui.integrations.slug);
+  for (const oi of orgIntegrations) {
+    const res = await syncMarketingData(user.id, oi.integration_id, oi.integrations.slug);
     results.push({
-      integration: ui.integrations.slug,
+      integration: oi.integrations.slug,
       ...res
     });
   }

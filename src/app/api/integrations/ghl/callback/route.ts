@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'No code provided' }, { status: 400 });
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

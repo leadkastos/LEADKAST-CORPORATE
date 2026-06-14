@@ -1,11 +1,9 @@
-import { createRouteHandlerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 import { seedReportingData } from '@/services/intelligence/seedReports';
 
 export async function POST() {
-  const cookieStore = cookies();
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
 

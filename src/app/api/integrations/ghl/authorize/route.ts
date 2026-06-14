@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
  * In production, this would redirect to GHL's OAuth page.
  */
 export async function GET(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

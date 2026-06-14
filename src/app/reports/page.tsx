@@ -4,7 +4,7 @@ import {
   Search, Download, Filter, Calendar, FileText,
   BarChart3, TrendingUp, Users, DollarSign,
   ChevronRight, ExternalLink, Clock, Eye, ArrowUpRight,
-  PieChart, Activity, Plus, Settings, Mail
+  PieChart, Activity, Plus, Settings, Mail, Zap
 } from 'lucide-react';
 
 const reportCategories = [
@@ -15,7 +15,7 @@ const reportCategories = [
   { id: 'operations', label: 'Operations', icon: Activity, count: 2 },
 ];
 
-const reports = [
+const reports: { id: number; title: string; category: string; description: string; date: string; pages: number; readTime: string; status: 'updated' | 'new' | 'archived'; trend: 'up' | 'down' | 'neutral'; value: string; chart: number[] }[] = [
   { id: 1, title: 'Monthly Revenue Report', category: 'revenue', description: 'Revenue streams, MRR trends, and growth metrics.', date: 'Dec 1, 2025', pages: 8, readTime: '12 min', status: 'updated' as const, trend: 'up' as const, value: '+12.5%', chart: [42,55,48,70,62,85] },
   { id: 2, title: 'Marketing Performance Dashboard', category: 'marketing', description: 'Channel attribution, campaign ROI, and conversion analysis.', date: 'Nov 28, 2025', pages: 12, readTime: '15 min', status: 'new' as const, trend: 'up' as const, value: '+18.2%', chart: [35,48,52,60,55,72] },
   { id: 3, title: 'Customer Acquisition Analysis', category: 'customers', description: 'CAC trends, LTV analysis, cohort retention by segment.', date: 'Nov 25, 2025', pages: 10, readTime: '10 min', status: 'updated' as const, trend: 'up' as const, value: '+5.4%', chart: [50,52,55,58,62,68] },

@@ -1,27 +1,9 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 import { syncMarketingData } from '@/services/marketing/mockAdService';
 
 export async function POST(request: Request) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -56,7 +38,7 @@ export async function POST(request: Request) {
 
   const results = [];
   for (const oi of orgIntegrations) {
-    const res = await syncMarketingData(user.id, oi.integration_id, oi.integrations.slug);
+    const res = await syncMarketingData(profile.organization_id, user.id, oi.integration_id, oi.integrations.slug);
     results.push({
       integration: oi.integrations.slug,
       ...res

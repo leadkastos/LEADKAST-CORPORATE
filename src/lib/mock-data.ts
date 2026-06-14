@@ -198,3 +198,23 @@ export const getConnectednessScore = () => {
   const totalPotential = mockIntegrations.filter(i => i.status !== 'coming_soon').length;
   return Math.round((connectedCount / totalPotential) * 100);
 };
+
+// Named exports consumed by /actions, /briefs, and /admin/permissions pages.
+export const actionItems = [
+  { id: 'a1', title: 'Follow up with dormant high-value leads', description: 'Re-engage 5 leads inactive for 7+ days.', priority: 'high', category: 'Revenue Recovery', time: '2h ago', progress: 20, impact: '+$8.4k potential', assignedTo: 'Sarah' },
+  { id: 'a2', title: 'Review underperforming ad set', description: 'Meta campaign CPL rose 18% week-over-week.', priority: 'medium', category: 'Marketing', time: '5h ago', progress: 60, impact: 'Save $1.2k/mo', assignedTo: 'Alex' },
+  { id: 'a3', title: 'Approve new pipeline automation', description: 'Auto-assign inbound leads by zip code.', priority: 'low', category: 'Operations', time: '1d ago', progress: 90, impact: 'Faster response', assignedTo: 'Jordan' },
+];
+
+export const recentActivity = [
+  { user: 'Sarah', action: 'closed', target: 'Acme HVAC deal', value: '+$4,200', time: '12m ago' },
+  { user: 'Alex', action: 'added', target: 'new lead Maria G.', value: 'Qualified', time: '45m ago' },
+  { user: 'System', action: 'flagged', target: 'dormant lead', value: 'Recovery', time: '1h ago' },
+  { user: 'Jordan', action: 'updated', target: 'Q3 pipeline', value: '8 deals', time: '3h ago' },
+];
+
+export const mockPermissions = [
+  { role: 'Super Admin', users: 2, access: 'Full Access' },
+  { role: 'Business Owner', users: 14, access: 'Org Management' },
+  { role: 'Manager', users: 23, access: 'Team & Reports' },
+];

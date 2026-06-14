@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
  * Returns the status of all integrations for the user's organization.
  */
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

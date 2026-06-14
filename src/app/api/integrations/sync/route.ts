@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { integrationService } from '@/services/integrations/IntegrationService';
 
 export async function POST(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

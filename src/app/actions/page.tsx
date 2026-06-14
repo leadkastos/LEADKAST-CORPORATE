@@ -70,7 +70,7 @@ export default function ActionsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1.5">
                     <h3 className="text-base font-semibold text-white group-hover:text-blue-400">{action.title}</h3>
-                    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", priorityStyles[action.priority])}>{action.priority}</span>
+                    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", priorityStyles[action.priority as keyof typeof priorityStyles])}>{action.priority}</span>
                   </div>
                   <p className="text-sm text-slate-400">{action.description}</p>
                 </div>
